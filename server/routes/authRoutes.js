@@ -6,12 +6,12 @@ const router = express.Router();
 
 
 router.route('/')
-    .post(loginLimiter, login)
+   .post(loginLimiter, login)
 
 router.route('/refresh')
-    .get(refresh)
+   .get(refresh)
 
 router.route('/logout')
-    .get(logout)
+   .get(logout)
 
 export default router;

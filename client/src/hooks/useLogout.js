@@ -1,17 +1,19 @@
 import axios from '../api/axios.js';
-import useMyContext from './useMyContext.js';
+import useAuthStore from '../store/authStore.js';
 
 const useLogout = () => {
-    const { setAuth } = useMyContext();
+   const setUserId = useAuthStore((state) => state.setUserId);
+   const setAccessToken = useAuthStore((state) => state.setAccessToken);
 
-    const logout = async () => {
-        setAuth({});
-        try {
-            const response = await axios.get('/auth/logout', { withCredentials: true });
-        } catch (error) {
-            console.error(error);
-        }
-    };
-    return logout;
+   const logout = async () => {
+      setUserId('');
+      setAccessToken('');
+      try {
+         await axios.get('/auth/logout', { withCredentials: true });
+      } catch (error) {
+         console.error(error);
+      }
+   };
+   return logout;
 };
 export default useLogout;

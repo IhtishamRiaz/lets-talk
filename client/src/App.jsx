@@ -4,13 +4,12 @@ import { Outlet, Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import LandingPage from './pages/LandingPage.jsx';
-import Dashboard from './pages/Dashboard';
 import Accounts from './pages/Accounts';
 import Unauthorised from './pages/Unauthorised.jsx';
 
 // Components
 import SideNav from './components/SideNav.jsx';
-import useMyContext from './hooks/useMyContext.js';
+import useAuthStore from './store/authStore.js';
 import PersistLogin from './components/PersistLogin.jsx';
 
 const PageLayout = () => {
@@ -26,16 +25,14 @@ const PageLayout = () => {
    );
 };
 
-const RequireAuth = ({ allowedRoles }) => {
-   const { auth } = useMyContext();
+const RequireAuth = () => {
+   const userId = useAuthStore((state) => state.userId);
    const location = useLocation();
 
    return (
-      allowedRoles?.includes(auth?.role)
+      userId
          ? <Outlet />
-         : auth?.userId
-            ? < Navigate to={'unauthorised'} state={{ from: location }} replace />
-            : < Navigate to={'/login'} state={{ from: location }} replace />
+         : < Navigate to={'/login'} state={{ from: location }} replace />
    );
 };
 
@@ -45,12 +42,7 @@ function App() {
          <Routes>
             <Route element={<PersistLogin />}>
                <Route path='/app' element={<PageLayout />}>
-                  {/* Only Admin Routes */}
-                  <Route element={<RequireAuth allowedRoles={['admin']} />}>
-                     <Route path='dashboard' element={<Dashboard />} />
-                  </Route>
-                  {/* Protected Routes */}
-                  <Route element={<RequireAuth allowedRoles={['admin', 'user']} />}>
+                  <Route element={<RequireAuth />}>
                      <Route path='accounts' element={<Accounts />} />
                      <Route path='unauthorised' element={<Unauthorised />} />
                   </Route>
