@@ -82,7 +82,7 @@ const refresh = async (req, res) => {
             return res.status(403).json({ message: 'Forbidden' });
          }
 
-         const foundUser = await User.findById(decoded.userId).exec();
+         const foundUser = await User.findById(decoded.userId).select('-password').exec();
 
          if (!foundUser) {
             return res.status(401).json({ message: 'Unauthorized' });
@@ -98,7 +98,7 @@ const refresh = async (req, res) => {
             { expiresIn: '15m' }
          );
 
-         res.json({ userId: foundUser._id, accessToken });
+         res.json({ user: foundUser, accessToken });
       })
    );
 };

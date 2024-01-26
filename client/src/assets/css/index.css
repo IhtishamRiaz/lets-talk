@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+   html {
+      font-family: "Poppins", Arial, Helvetica;
+   }
+}
+
+.tiny-scrollbar::-webkit-scrollbar {
+   width: 4px;
+}
+
+.tiny-scrollbar::-webkit-scrollbar-track {
+   background: transparent;
+}
+
+.tiny-scrollbar::-webkit-scrollbar-thumb {
+   background-color: rgb(92, 92, 92);
+}

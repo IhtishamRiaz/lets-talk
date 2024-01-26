@@ -7,8 +7,10 @@ import { logger, logEvents } from "./middleware/logger.js";
 import cookieParser from "cookie-parser";
 import errorHandler from "./middleware/errorHandler.js";
 import corsOptions from './config/corsOptions.js';
+import verifyJWT from "./middleware/verifyJWT.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import requestRoutes from "./routes/requestRoute.js";
 
 dotenv.config();
 const app = express();
@@ -24,16 +26,17 @@ app.use(express.urlencoded({ extended: false }));
 // Routes
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
+app.use('/request', verifyJWT, requestRoutes)
 
 app.use(errorHandler);
 
 mongoose.connection.once('open', () => {
-    console.log('Connected to MongoDB');
-    const PORT = process.env.PORT || 8080;
-    app.listen(PORT, () => console.log(`Server Running on port ${process.env.PORT}`));
+   console.log('Connected to MongoDB');
+   const PORT = process.env.PORT || 8080;
+   const server = app.listen(PORT, () => console.log(`Server Running on port ${process.env.PORT}`));
 });
 
 mongoose.connection.on('error', (error) => {
-    console.log(error);
-    logEvents(`${error.no}: ${error.code}\t${error.syscall}\t${error.hostname}`, 'mongoErrLog.log');
+   console.log(error);
+   logEvents(`${error.no}: ${error.code}\t${error.syscall}\t${error.hostname}`, 'mongoErrLog.log');
 });

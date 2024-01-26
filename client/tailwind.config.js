@@ -1,23 +1,26 @@
 /** @type {import('tailwindcss').Config} */
-const colors = require('tailwindcss/colors')
+import colors from "tailwindcss/colors"
+import tailwindForms from "@tailwindcss/forms"
+
 export default {
-  mode: 'jit',
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {
-      colors: {
-        primary: colors.purple,
-      }
-    },
-  },
-  plugins: [
-    require('@tailwindcss/forms')({
-      strategy: 'class'
-    })
-  ],
+   mode: 'jit',
+   darkMode: 'class',
+   content: [
+      "./index.html",
+      "./src/**/*.{js,ts,jsx,tsx}",
+   ],
+   theme: {
+      extend: {
+         colors: {
+            primary: colors.purple,
+         }
+      },
+   },
+   plugins: [
+      tailwindForms({
+         strategy: 'class'
+      })
+   ],
 }
 
 
