@@ -11,6 +11,7 @@ import verifyJWT from "./middleware/verifyJWT.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import requestRoutes from "./routes/requestRoute.js";
+import chatRoutes from "./routes/chatRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/request', verifyJWT, requestRoutes)
+app.use('/chat', verifyJWT, chatRoutes)
 
 app.use(errorHandler);
 

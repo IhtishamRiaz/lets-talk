@@ -17,6 +17,7 @@ import useAuthStore from "./store/authStore.js";
 import useAxiosPrivate from "./hooks/useAxiosPrivate.js";
 import { useEffect } from "react";
 import useUserStore from "./store/userStore.js";
+import useChatStore from "./store/chatStore.js";
 
 const PageLayout = () => {
    const userId = useAuthStore((state) => state.userId);
@@ -38,15 +39,18 @@ const PageLayout = () => {
 function App() {
    const axiosPrivate = useAxiosPrivate();
    const setAllUsers = useUserStore((state) => state.setAllUsers);
+   const setAllChats = useChatStore((state) => state.setAllChats);
 
    useEffect(() => {
-      const getAllUsers = async () => {
-         const response = await axiosPrivate.get("/user");
-         const users = response.data;
-         setAllUsers(users);
+      const prefetchData = async () => {
+         const users = await axiosPrivate.get("/user");
+         const chats = await axiosPrivate.get("/chat");
+
+         setAllUsers(users.data);
+         setAllChats(chats.data);
       };
-      getAllUsers();
-   }, [axiosPrivate, setAllUsers]);
+      prefetchData();
+   }, [axiosPrivate, setAllUsers, setAllChats]);
 
    return (
       <>

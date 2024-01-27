@@ -5,9 +5,41 @@ import {
    DropdownMenuItem,
    DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useUserStore from "../../store/userStore";
+import useChatStore from "../../store/chatStore";
+
 const FriendItem = ({ user }) => {
+   const navigate = useNavigate();
+   const axiosPrivate = useAxiosPrivate();
+   const currentUser = useUserStore((state) => state.currentUser);
+   const allChats = useChatStore((state) => state.allChats);
+
+   const handleClick = async () => {
+      try {
+         const existingChat = allChats?.find((chat) =>
+            chat.members.includes(user?._id, currentUser._id)
+         );
+
+         if (existingChat) {
+            navigate(`/chats?id=${existingChat._id}`);
+            return;
+         } else {
+            const res = await axiosPrivate.post("/chat", {
+               members: [user?._id, currentUser._id],
+            });
+            navigate(`/chats?id=${res.data.newChat._id}`);
+         }
+      } catch (error) {
+         console.log(error);
+      }
+   };
    return (
-      <div className="flex gap-2 p-1 transition-all rounded-md cursor-pointer select-none hover:bg-primary-50">
+      <div
+         onClick={handleClick}
+         className="flex gap-2 p-1 transition-all rounded-md cursor-pointer select-none hover:bg-primary-50"
+      >
          <div className="relative">
             <img
                src="/images/temp-avatar.png"

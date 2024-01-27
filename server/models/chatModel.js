@@ -1,18 +1,20 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
-const chatSchema = new mongoose.Schema({
-   members: {
-      type: [String],
-      required: true
+const chatSchema = new mongoose.Schema(
+   {
+      members: {
+         type: [String],
+         required: true,
+      },
+      isGroup: {
+         type: Boolean,
+         default: false,
+         required: true,
+      },
    },
-   isGroup: {
-      type: Boolean,
-      default: false,
-      required: true
-   },
+   { timestamps: true }
+);
 
-}, { timestamps: true })
-
-const Chat = mongoose.model('Chat', chatSchema);
+const Chat = mongoose.model("Chat", chatSchema);
 
 export default Chat;

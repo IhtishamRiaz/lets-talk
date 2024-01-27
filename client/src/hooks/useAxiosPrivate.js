@@ -1,18 +1,17 @@
-import { useEffect } from 'react';
-import { axiosPrivate } from '../api/axios.js';
-import useRefreshToken from './useRefreshToken.js';
-import useAuthStore from '../store/authStore.js';
+import { useEffect } from "react";
+import { axiosPrivate } from "../api/axios.js";
+import useRefreshToken from "./useRefreshToken.js";
+import useAuthStore from "../store/authStore.js";
 
 const useAxiosPrivate = () => {
    const refresh = useRefreshToken();
    const accessToken = useAuthStore((state) => state.accessToken);
 
    useEffect(() => {
-
       const requestIntercept = axiosPrivate.interceptors.request.use(
          (config) => {
-            if (accessToken && !config.headers['Authorization']) {
-               config.headers['Authorization'] = `Bearer ${accessToken}`;
+            if (accessToken && !config.headers["Authorization"]) {
+               config.headers["Authorization"] = `Bearer ${accessToken}`;
             }
             return config;
          },
@@ -25,10 +24,15 @@ const useAxiosPrivate = () => {
          (response) => response,
          async (error) => {
             const prevRequest = error?.config;
-            if (error?.response?.status === 401 || error?.response?.status === 401 && !prevRequest?.sent) {
+            if (
+               error?.response?.status === 403 ||
+               (error?.response?.status === 401 && !prevRequest?.sent)
+            ) {
                prevRequest.sent = true;
                const newAccessToken = await refresh();
-               prevRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+               prevRequest.headers[
+                  "Authorization"
+               ] = `Bearer ${newAccessToken}`;
                return axiosPrivate(prevRequest);
             }
             return Promise.reject(error);
@@ -38,8 +42,7 @@ const useAxiosPrivate = () => {
       return () => {
          axiosPrivate.interceptors.request.eject(requestIntercept);
          axiosPrivate.interceptors.response.eject(responseIntercept);
-      }
-
+      };
    }, [accessToken, refresh]);
 
    return axiosPrivate;
