@@ -7,10 +7,8 @@ const ChatItem = ({ chat }) => {
    const currentChatId = searchParams.get("id");
    const selected = currentChatId === chat?._id;
 
-   const allUsers = useUserStore((state) => state.allUsers);
    const currentUser = useUserStore((state) => state.currentUser);
-   const otherUserId = chat?.members?.find((mem) => mem !== currentUser?._id);
-   const otherUser = allUsers?.find((user) => user?._id === otherUserId);
+   const otherUser = chat?.members?.find((mem) => mem !== currentUser?._id);
 
    const handleChatSelect = () => {
       const newSearchParams = new URLSearchParams();

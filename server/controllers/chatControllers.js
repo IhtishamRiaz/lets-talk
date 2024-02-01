@@ -7,13 +7,11 @@ const getAllChats = async (req, res) => {
    try {
       const userId = req.userId;
 
-      const chats = await Chat.find().lean().exec();
+      const chats = await Chat.find({ members: { $in: [userId] } })
+         .populate("members", "name" + " username")
+         .exec();
 
-      const requestedUserChats = chats.filter((chat) =>
-         chat.members.includes(userId)
-      );
-
-      res.status(200).json(requestedUserChats);
+      res.status(200).json(chats);
    } catch (error) {
       res.status(500).json({ message: error.message });
    }
