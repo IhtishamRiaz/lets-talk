@@ -1,5 +1,7 @@
 import "./assets/css/App.css";
 import { Outlet, Route, Routes, useLocation, Navigate } from "react-router-dom";
+import { io } from "socket.io-client";
+
 // Pages
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -18,6 +20,7 @@ import useAxiosPrivate from "./hooks/useAxiosPrivate.js";
 import { useEffect } from "react";
 import useUserStore from "./store/userStore.js";
 import useChatStore from "./store/chatStore.js";
+import useSocketStore from "./store/socketStore.js";
 
 const PageLayout = () => {
    const userId = useAuthStore((state) => state.userId);
@@ -40,6 +43,8 @@ function App() {
    const axiosPrivate = useAxiosPrivate();
    const setAllUsers = useUserStore((state) => state.setAllUsers);
    const setAllChats = useChatStore((state) => state.setAllChats);
+   const setSocket = useSocketStore((state) => state.setSocket);
+   const currentUser = useUserStore((state) => state.currentUser);
 
    useEffect(() => {
       const prefetchData = async () => {
@@ -51,6 +56,28 @@ function App() {
       };
       prefetchData();
    }, [axiosPrivate, setAllUsers, setAllChats]);
+
+   useEffect(() => {
+      const socket = io("http://localhost:8080");
+
+      socket.on("connect", () => {
+         console.log("connected to ws server");
+         setSocket(socket);
+      });
+
+      if (currentUser) {
+         socket.emit("addNewUser", currentUser?._id);
+      }
+
+      socket.on("getOnlineUsers", (users) => {
+         console.log(users);
+         useUserStore.setState({ onlineUsers: users });
+      });
+
+      return () => {
+         socket.disconnect();
+      };
+   }, [setSocket, currentUser]);
 
    return (
       <>

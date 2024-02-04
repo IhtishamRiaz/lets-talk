@@ -15,11 +15,15 @@ const FriendItem = ({ user }) => {
    const axiosPrivate = useAxiosPrivate();
    const currentUser = useUserStore((state) => state.currentUser);
    const allChats = useChatStore((state) => state.allChats);
+   const onlineUsers = useUserStore((state) => state.onlineUsers);
+   const isOnline = onlineUsers?.some(
+      (onlineUser) => onlineUser.userId === user?._id
+   );
 
    const handleClick = async () => {
       try {
          const existingChat = allChats?.find((chat) =>
-            chat.members.includes(user?._id, currentUser._id)
+            chat.members.some((member) => member._id === user?._id)
          );
 
          if (existingChat) {
@@ -46,7 +50,9 @@ const FriendItem = ({ user }) => {
                alt="avatar"
                className="w-12 h-12"
             />
-            <span className="absolute right-0 w-4 h-4 bg-green-700 border-2 border-white rounded-full bottom-1"></span>
+            {isOnline && (
+               <span className="absolute right-0 w-4 h-4 bg-green-700 border-2 border-white rounded-full bottom-1"></span>
+            )}
          </div>
          <div className="relative flex-1">
             <h3 className="font-semibold">{user?.name}</h3>

@@ -1,4 +1,6 @@
 import express from "express";
+import { Server } from "socket.io";
+import http from "http";
 import cors from "cors";
 import dotenv from "dotenv";
 import ConnectDB from "./config/dbConn.js";
@@ -13,6 +15,7 @@ import userRoutes from "./routes/userRoutes.js";
 import requestRoutes from "./routes/requestRoute.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
+import allowedOrigins from "./config/allowedOrigins.js";
 
 dotenv.config();
 const app = express();
@@ -34,12 +37,13 @@ app.use("/message", verifyJWT, messageRoutes);
 
 app.use(errorHandler);
 
+// let expressServer;
 mongoose.connection.once("open", () => {
    console.log("Connected to MongoDB");
-   const PORT = process.env.PORT || 8080;
-   const server = app.listen(PORT, () =>
-      console.log(`Server Running on port ${process.env.PORT}`)
-   );
+   // const PORT = process.env.PORT || 8080;
+   // expressServer = app.listen(PORT, () =>
+   //    console.log(`Server Running on port ${process.env.PORT}`)
+   // );
 });
 
 mongoose.connection.on("error", (error) => {
@@ -48,4 +52,36 @@ mongoose.connection.on("error", (error) => {
       `${error.no}: ${error.code}\t${error.syscall}\t${error.hostname}`,
       "mongoErrLog.log"
    );
+});
+
+const expressServer = http.createServer(app);
+const PORT = process.env.PORT || 8080;
+
+const io = new Server(expressServer, {
+   cors: {
+      origin: allowedOrigins,
+   },
+});
+
+let onlineUsers = [];
+
+io.on("connection", (socket) => {
+   socket.on("addNewUser", (userId) => {
+      !onlineUsers.some((user) => user.userId === userId) &&
+         onlineUsers.push({
+            userId,
+            socketId: socket.id,
+         });
+
+      io.emit("getOnlineUsers", onlineUsers);
+   });
+
+   socket.on("disconnect", () => {
+      onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
+      io.emit("getOnlineUsers", onlineUsers);
+   });
+});
+
+expressServer.listen(PORT, () => {
+   console.log(`Server Running on port ${process.env.PORT}`);
 });

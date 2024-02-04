@@ -25,6 +25,7 @@
     "logger": "^0.0.1",
     "mongoose": "^7.4.3",
     "mongoose-sequence": "^5.3.1",
+    "socket.io": "^4.7.4",
     "uuid": "^9.0.0",
     "ws": "^8.16.0"
   }

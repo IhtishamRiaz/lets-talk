@@ -30,11 +30,11 @@ const Message = ({ message, chat }) => {
    return (
       <div
          className={cn(
-            "relative inline-block px-3 py-1 pb-5 rounded bg-zinc-200 min-w-[100px] max-w-[60%] drop-shadow-sm",
+            "relative inline-block px-3 py-1 pb-5 rounded-md bg-zinc-200 min-w-[100px] max-w-[60%] drop-shadow-sm",
             isSender && "ml-auto bg-primary-200"
          )}
       >
-         {message.content}
+         <p>{message.content}</p>
 
          <div className="absolute flex items-center gap-1 text-xs text-gray-600 bottom-1 right-2">
             {localTime}
