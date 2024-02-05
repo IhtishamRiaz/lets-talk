@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import useChatStore from "../store/chatStore";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import ChatArea from "../components/Chats/chat-area";
+import { TiMessages } from "react-icons/ti";
 
 const Chats = () => {
    useTitle("Chats");
@@ -48,6 +49,12 @@ const Chats = () => {
 
          <div className="flex-1">
             {currentChat?._id && <ChatArea chat={currentChat} />}
+            {!currentChat?._id && (
+               <div>
+                  Welcome John Doe. <br /> Select a chat to start messaging
+                  <TiMessages className="text-5xl" />
+               </div>
+            )}
          </div>
       </div>
    );

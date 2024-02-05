@@ -1,12 +1,13 @@
 // import { IoChevronBack } from "react-icons/io5";
 // import { BsThreeDotsVertical } from "react-icons/bs";
+import React from "react";
 import useUserStore from "../../store/userStore";
 import { cn } from "../../utils/utils";
 import { TbTriangleFilled } from "react-icons/tb";
 import { TbChecks } from "react-icons/tb";
 import { TbCheck } from "react-icons/tb";
 
-const Message = ({ message, chat }) => {
+const Message = React.forwardRef(({ message, chat }, ref) => {
    const currentUser = useUserStore((state) => state.currentUser);
 
    const sender = chat?.members?.find(
@@ -29,6 +30,7 @@ const Message = ({ message, chat }) => {
 
    return (
       <div
+         ref={ref}
          className={cn(
             "relative inline-block px-3 py-1 pb-5 rounded-md bg-zinc-200 min-w-[100px] max-w-[60%] drop-shadow-sm",
             isSender && "ml-auto bg-primary-200"
@@ -55,6 +57,8 @@ const Message = ({ message, chat }) => {
          </div>
       </div>
    );
-};
+});
+
+Message.displayName = "Message";
 
 export default Message;

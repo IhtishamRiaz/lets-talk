@@ -80,6 +80,20 @@ io.on("connection", (socket) => {
       onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
       io.emit("getOnlineUsers", onlineUsers);
    });
+
+   socket.on("sendMessage", (data) => {
+      console.log(data);
+
+      const user = onlineUsers.find((user) => user.userId === data.receiverId);
+      if (!user) return;
+
+      io.to(user.socketId).emit("getMessage", {
+         chatId: data.chatId,
+         content: data.content,
+         senderId: data.senderId,
+         createdAt: Date.now(),
+      });
+   });
 });
 
 expressServer.listen(PORT, () => {

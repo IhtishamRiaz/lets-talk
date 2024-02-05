@@ -43,8 +43,9 @@ function App() {
    const axiosPrivate = useAxiosPrivate();
    const setAllUsers = useUserStore((state) => state.setAllUsers);
    const setAllChats = useChatStore((state) => state.setAllChats);
-   const setSocket = useSocketStore((state) => state.setSocket);
    const currentUser = useUserStore((state) => state.currentUser);
+   const socket = useSocketStore((state) => state.socket);
+   const setSocket = useSocketStore((state) => state.setSocket);
 
    useEffect(() => {
       const prefetchData = async () => {
@@ -58,26 +59,30 @@ function App() {
    }, [axiosPrivate, setAllUsers, setAllChats]);
 
    useEffect(() => {
-      const socket = io("http://localhost:8080");
+      const newSocket = io("http://localhost:8080");
 
-      socket.on("connect", () => {
+      newSocket.on("connect", () => {
          console.log("connected to ws server");
-         setSocket(socket);
+         setSocket(newSocket);
       });
 
-      if (currentUser) {
-         socket.emit("addNewUser", currentUser?._id);
-      }
+      return () => {
+         newSocket.disconnect();
+      };
+   }, [setSocket]);
+
+   useEffect(() => {
+      if (!currentUser._id || !socket) return;
+      socket.emit("addNewUser", currentUser?._id);
 
       socket.on("getOnlineUsers", (users) => {
-         console.log(users);
          useUserStore.setState({ onlineUsers: users });
       });
 
       return () => {
-         socket.disconnect();
+         socket.off("getOnlineUsers");
       };
-   }, [setSocket, currentUser]);
+   }, [currentUser, socket]);
 
    return (
       <>

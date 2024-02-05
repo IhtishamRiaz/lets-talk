@@ -6,9 +6,14 @@ const ChatItem = ({ chat }) => {
    const [searchParams, setSearchParams] = useSearchParams();
    const currentChatId = searchParams.get("id");
    const selected = currentChatId === chat?._id;
+   const onlineUsers = useUserStore((state) => state.onlineUsers);
 
    const currentUser = useUserStore((state) => state.currentUser);
    const otherUser = chat?.members?.find((mem) => mem._id !== currentUser?._id);
+
+   const isOnline = onlineUsers?.some(
+      (onlineUser) => onlineUser?.userId === otherUser?._id
+   );
 
    const handleChatSelect = () => {
       const newSearchParams = new URLSearchParams();
@@ -30,7 +35,9 @@ const ChatItem = ({ chat }) => {
                alt="avatar"
                className="w-12 h-12"
             />
-            <span className="absolute right-0 w-4 h-4 bg-green-700 border-2 border-white rounded-full bottom-1"></span>
+            {isOnline && (
+               <span className="absolute right-0 w-4 h-4 bg-green-700 border-2 border-white rounded-full bottom-1"></span>
+            )}
          </div>
          <div className="relative flex-1">
             <h3 className="font-semibold ">{otherUser?.name}</h3>

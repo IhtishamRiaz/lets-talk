@@ -9,6 +9,10 @@ const UserItem = ({ user }) => {
    const [isRequestSent, setIsRequestSent] = useState(false);
    const axiosPrivate = useAxiosPrivate();
    const currentUser = useUserStore((state) => state.currentUser);
+   const onlineUsers = useUserStore((state) => state.onlineUsers);
+   const isOnline = onlineUsers?.some(
+      (onlineUser) => onlineUser?._id === user?._id
+   );
 
    const handleRequestSend = async () => {
       await axiosPrivate.post("/request", { to: user?._id });
@@ -31,7 +35,9 @@ const UserItem = ({ user }) => {
                alt="avatar"
                className="w-12 h-12"
             />
-            <span className="absolute right-0 w-4 h-4 bg-green-700 border-2 border-white rounded-full bottom-1"></span>
+            {isOnline && (
+               <span className="absolute right-0 w-4 h-4 bg-green-700 border-2 border-white rounded-full bottom-1"></span>
+            )}
          </div>
          <div className="relative flex-1">
             <h3 className="font-semibold">{user?.name}</h3>

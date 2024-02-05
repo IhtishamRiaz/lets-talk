@@ -3,28 +3,65 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useEffect, useRef, useState } from "react";
 import Message from "./message";
 import ChatHeader from "./chat-header";
+import useSocketStore from "../../store/socketStore";
+import useUserStore from "../../store/userStore";
 
 const ChatArea = ({ chat }) => {
+   const socket = useSocketStore((state) => state.socket);
+   const currentUser = useUserStore((state) => state.currentUser);
+
    const axiosPrivate = useAxiosPrivate();
    const [initialMessages, setInitialMessages] = useState([]);
-   const inputRef = useRef();
+   const [newMessages, setNewMessages] = useState([]);
+   const receiver = chat?.members?.find(
+      (user) => user?._id !== currentUser?._id
+   );
 
+   const inputRef = useRef();
+   const scrollRef = useRef();
+
+   // Send New Message
    const sendMessage = async (e) => {
       try {
          e.preventDefault();
          const content = inputRef.current.value;
          if (!content || !chat?._id) return;
 
+         const randomId =
+            Math.floor(Math.random() * 1000000).toString() + Date.now();
+
+         setNewMessages((prev) => [
+            ...prev,
+            {
+               _id: randomId,
+               senderId: currentUser?._id,
+               chatId: chat?._id,
+               content,
+               createdAt: Date.now(),
+            },
+         ]);
+
+         // send message to socket
+         socket.emit("sendMessage", {
+            chatId: chat?._id,
+            senderId: currentUser?._id,
+            receiverId: receiver._id,
+            content,
+         });
+
+         // Save message to database
          await axiosPrivate.post("/message", {
             chatId: chat?._id,
             content,
          });
+
          inputRef.current.value = "";
       } catch (error) {
          console.log(error);
       }
    };
 
+   // Fetch All Messages on initial load
    useEffect(() => {
       const fetchAllMessages = async () => {
          try {
@@ -38,14 +75,53 @@ const ChatArea = ({ chat }) => {
       fetchAllMessages();
    }, [chat?._id, axiosPrivate]);
 
+   // Listen for new messages
+   useEffect(() => {
+      if (!socket) return;
+
+      socket.on("getMessage", (data) => {
+         if (data?.chatId !== chat?._id) return;
+
+         setNewMessages((prev) => [...prev, data]);
+      });
+
+      return () => {
+         socket.off("getMessage");
+      };
+   }, [socket, chat?._id]);
+
+   // Scroll into view
+   useEffect(() => {
+      if (scrollRef.current) {
+         scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+         console.log(scrollRef);
+      }
+   }, [newMessages]);
+
    return (
       <div className="relative min-h-svh">
          <ChatHeader chat={chat} />
-         <section className="flex flex-col items-start gap-4 px-6 py-4">
+         <section
+            ref={scrollRef}
+            className="flex flex-col items-start gap-4 px-6 py-4 max-h-[calc(100svh-140px)] border border-red-500 overflow-auto"
+         >
             {initialMessages?.map((message) => (
                <>
-                  <Message key={message._id} message={message} chat={chat} />
+                  <Message
+                     key={message._id}
+                     message={message}
+                     chat={chat}
+                     ref={scrollRef}
+                  />
                </>
+            ))}
+            {newMessages?.map((message) => (
+               <Message
+                  key={message._id}
+                  message={message}
+                  chat={chat}
+                  ref={scrollRef}
+               />
             ))}
          </section>
 
