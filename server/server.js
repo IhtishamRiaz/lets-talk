@@ -81,6 +81,7 @@ io.on("connection", (socket) => {
       io.emit("getOnlineUsers", onlineUsers);
    });
 
+   // Messageing Sockets
    socket.on("sendMessage", (data) => {
       console.log(data);
 
@@ -93,6 +94,11 @@ io.on("connection", (socket) => {
          senderId: data.senderId,
          createdAt: Date.now(),
       });
+   });
+
+   // Requests Sockets
+   socket.on("sendRequest", () => {
+      io.emit("updateRequests");
    });
 });
 

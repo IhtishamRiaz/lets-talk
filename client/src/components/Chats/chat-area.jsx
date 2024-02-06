@@ -30,30 +30,33 @@ const ChatArea = ({ chat }) => {
          const randomId =
             Math.floor(Math.random() * 1000000).toString() + Date.now();
 
-         setNewMessages((prev) => [
-            ...prev,
-            {
-               _id: randomId,
-               senderId: currentUser?._id,
+         // Save message to database
+         await axiosPrivate
+            .post("/message", {
                chatId: chat?._id,
                content,
-               createdAt: Date.now(),
-            },
-         ]);
+            })
+            .then(() => {
+               // Save message to state
+               setNewMessages((prev) => [
+                  ...prev,
+                  {
+                     _id: randomId,
+                     senderId: currentUser?._id,
+                     chatId: chat?._id,
+                     content,
+                     createdAt: Date.now(),
+                  },
+               ]);
 
-         // send message to socket
-         socket.emit("sendMessage", {
-            chatId: chat?._id,
-            senderId: currentUser?._id,
-            receiverId: receiver._id,
-            content,
-         });
-
-         // Save message to database
-         await axiosPrivate.post("/message", {
-            chatId: chat?._id,
-            content,
-         });
+               // Send message to socket
+               socket.emit("sendMessage", {
+                  chatId: chat?._id,
+                  senderId: currentUser?._id,
+                  receiverId: receiver._id,
+                  content,
+               });
+            });
 
          inputRef.current.value = "";
       } catch (error) {
@@ -94,7 +97,6 @@ const ChatArea = ({ chat }) => {
    useEffect(() => {
       if (scrollRef.current) {
          scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-         console.log(scrollRef);
       }
    }, [newMessages]);
 

@@ -62,7 +62,6 @@ function App() {
       const newSocket = io("http://localhost:8080");
 
       newSocket.on("connect", () => {
-         console.log("connected to ws server");
          setSocket(newSocket);
       });
 
@@ -83,6 +82,15 @@ function App() {
          socket.off("getOnlineUsers");
       };
    }, [currentUser, socket]);
+
+   useEffect(() => {
+      if (!socket) return;
+
+      socket.on("updateRequests", async () => {
+         const users = await axiosPrivate.get("/user");
+         setAllUsers(users.data);
+      });
+   }, [socket, axiosPrivate, setAllUsers]);
 
    return (
       <>

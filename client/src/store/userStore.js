@@ -5,7 +5,7 @@ const useUserStore = create((set) => ({
    setCurrentUser: (currentUser) => set({ currentUser }),
 
    allUsers: [],
-   setAllUsers: (allUsers) => set({ allUsers }),
+   setAllUsers: (newAllUsers) => set({ allUsers: newAllUsers }),
 
    onlineUsers: [],
    setOnlineUsers: (onlineUsersIds) => set({ onlineUsersIds }),
