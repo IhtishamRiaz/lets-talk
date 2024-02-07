@@ -2,14 +2,14 @@ import { BsPersonFillAdd, BsPersonFillX } from "react-icons/bs";
 import { cn } from "../../utils/utils";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useUserStore from "../../store/userStore";
-import useSocketStore from "../../store/socketStore";
+import useSocketContext from "../../hooks/useSocketContext";
 import { useState } from "react";
 
 const UserItem = ({ user }) => {
    const axiosPrivate = useAxiosPrivate();
    const currentUser = useUserStore((state) => state.currentUser);
    const onlineUsers = useUserStore((state) => state.onlineUsers);
-   const socket = useSocketStore((state) => state.socket);
+   const { socket } = useSocketContext();
    const isOnline = onlineUsers?.some(
       (onlineUser) => onlineUser?._id === user?._id
    );

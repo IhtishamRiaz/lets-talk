@@ -8,7 +8,7 @@ const useUserStore = create((set) => ({
    setAllUsers: (newAllUsers) => set({ allUsers: newAllUsers }),
 
    onlineUsers: [],
-   setOnlineUsers: (onlineUsersIds) => set({ onlineUsersIds }),
+   setOnlineUsers: (onlineUsers) => set({ onlineUsers }),
 }));
 
 export default useUserStore;

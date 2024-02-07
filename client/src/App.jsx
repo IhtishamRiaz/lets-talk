@@ -1,6 +1,6 @@
 import "./assets/css/App.css";
 import { Outlet, Route, Routes, useLocation, Navigate } from "react-router-dom";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 
 // Pages
 import Login from "./pages/Login.jsx";
@@ -20,7 +20,7 @@ import useAxiosPrivate from "./hooks/useAxiosPrivate.js";
 import { useEffect } from "react";
 import useUserStore from "./store/userStore.js";
 import useChatStore from "./store/chatStore.js";
-import useSocketStore from "./store/socketStore.js";
+// import useSocketStore from "./store/socketStore.js";
 
 const PageLayout = () => {
    const userId = useAuthStore((state) => state.userId);
@@ -43,9 +43,9 @@ function App() {
    const axiosPrivate = useAxiosPrivate();
    const setAllUsers = useUserStore((state) => state.setAllUsers);
    const setAllChats = useChatStore((state) => state.setAllChats);
-   const currentUser = useUserStore((state) => state.currentUser);
-   const socket = useSocketStore((state) => state.socket);
-   const setSocket = useSocketStore((state) => state.setSocket);
+   // const currentUser = useUserStore((state) => state.currentUser);
+   // const socket = useSocketStore((state) => state.socket);
+   // const setSocket = useSocketStore((state) => state.setSocket);
 
    useEffect(() => {
       const prefetchData = async () => {
@@ -58,39 +58,39 @@ function App() {
       prefetchData();
    }, [axiosPrivate, setAllUsers, setAllChats]);
 
-   useEffect(() => {
-      const newSocket = io("http://localhost:8080");
+   // useEffect(() => {
+   //    const newSocket = io("http://localhost:8080");
 
-      newSocket.on("connect", () => {
-         setSocket(newSocket);
-      });
+   //    newSocket.on("connect", () => {
+   //       setSocket(newSocket);
+   //    });
 
-      return () => {
-         newSocket.disconnect();
-      };
-   }, [setSocket]);
+   //    return () => {
+   //       newSocket.disconnect();
+   //    };
+   // }, [setSocket]);
 
-   useEffect(() => {
-      if (!currentUser._id || !socket) return;
-      socket.emit("addNewUser", currentUser?._id);
+   // useEffect(() => {
+   //    if (!currentUser._id || !socket) return;
+   //    socket.emit("addNewUser", currentUser?._id);
 
-      socket.on("getOnlineUsers", (users) => {
-         useUserStore.setState({ onlineUsers: users });
-      });
+   //    socket.on("getOnlineUsers", (users) => {
+   //       useUserStore.setState({ onlineUsers: users });
+   //    });
 
-      return () => {
-         socket.off("getOnlineUsers");
-      };
-   }, [currentUser, socket]);
+   //    return () => {
+   //       socket.off("getOnlineUsers");
+   //    };
+   // }, [currentUser, socket]);
 
-   useEffect(() => {
-      if (!socket) return;
+   // useEffect(() => {
+   //    if (!socket) return;
 
-      socket.on("updateRequests", async () => {
-         const users = await axiosPrivate.get("/user");
-         setAllUsers(users.data);
-      });
-   }, [socket, axiosPrivate, setAllUsers]);
+   //    socket.on("updateRequests", async () => {
+   //       const users = await axiosPrivate.get("/user");
+   //       setAllUsers(users.data);
+   //    });
+   // }, [socket, axiosPrivate, setAllUsers]);
 
    return (
       <>

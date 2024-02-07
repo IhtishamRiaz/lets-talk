@@ -3,16 +3,20 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useEffect, useRef, useState } from "react";
 import Message from "./message";
 import ChatHeader from "./chat-header";
-import useSocketStore from "../../store/socketStore";
 import useUserStore from "../../store/userStore";
+import useListenMessages from "../../hooks/useListenMessages";
+import useChatStore from "../../store/chatStore";
 
 const ChatArea = ({ chat }) => {
-   const socket = useSocketStore((state) => state.socket);
+   useListenMessages();
+
    const currentUser = useUserStore((state) => state.currentUser);
+   const newMessages = useChatStore((state) => state.newMessages);
+   const setNewMessages = useChatStore((state) => state.setNewMessages);
+   const addNewMessage = useChatStore((state) => state.addNewMessage);
 
    const axiosPrivate = useAxiosPrivate();
    const [initialMessages, setInitialMessages] = useState([]);
-   const [newMessages, setNewMessages] = useState([]);
    const receiver = chat?.members?.find(
       (user) => user?._id !== currentUser?._id
    );
@@ -27,36 +31,12 @@ const ChatArea = ({ chat }) => {
          const content = inputRef.current.value;
          if (!content || !chat?._id) return;
 
-         const randomId =
-            Math.floor(Math.random() * 1000000).toString() + Date.now();
-
-         // Save message to database
-         await axiosPrivate
-            .post("/message", {
-               chatId: chat?._id,
-               content,
-            })
-            .then(() => {
-               // Save message to state
-               setNewMessages((prev) => [
-                  ...prev,
-                  {
-                     _id: randomId,
-                     senderId: currentUser?._id,
-                     chatId: chat?._id,
-                     content,
-                     createdAt: Date.now(),
-                  },
-               ]);
-
-               // Send message to socket
-               socket.emit("sendMessage", {
-                  chatId: chat?._id,
-                  senderId: currentUser?._id,
-                  receiverId: receiver._id,
-                  content,
-               });
-            });
+         const res = await axiosPrivate.post("/message", {
+            chatId: chat?._id,
+            content,
+            receiverId: receiver?._id,
+         });
+         addNewMessage(res.data);
 
          inputRef.current.value = "";
       } catch (error) {
@@ -76,22 +56,8 @@ const ChatArea = ({ chat }) => {
          }
       };
       fetchAllMessages();
-   }, [chat?._id, axiosPrivate]);
-
-   // Listen for new messages
-   useEffect(() => {
-      if (!socket) return;
-
-      socket.on("getMessage", (data) => {
-         if (data?.chatId !== chat?._id) return;
-
-         setNewMessages((prev) => [...prev, data]);
-      });
-
-      return () => {
-         socket.off("getMessage");
-      };
-   }, [socket, chat?._id]);
+      setNewMessages([]);
+   }, [chat?._id, axiosPrivate, setNewMessages]);
 
    // Scroll into view
    useEffect(() => {
