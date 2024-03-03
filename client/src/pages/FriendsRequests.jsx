@@ -1,18 +1,29 @@
 import UserItem from "../components/FriendRequests/user-item";
 import useTitle from "../hooks/useTitle";
+import useRequestStore from "../store/requestStore";
 import useUserStore from "../store/userStore";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import { useEffect } from "react";
 
 const FriendsRequests = () => {
    useTitle("FriendsRequests");
+   const axiosPrivate = useAxiosPrivate();
 
+   const allRequests = useRequestStore((state) => state.allRequests);
+   const setAllRequests = useRequestStore((state) => state.setAllRequests);
    const currentUser = useUserStore((state) => state.currentUser);
-   const allUsers = useUserStore((state) => state.allUsers);
-
-   let allRequests = allUsers?.filter((user) =>
-      currentUser?.requests?.includes(user._id)
+   const allMyRequests = allRequests?.filter(
+      (req) => req.receiver._id === currentUser._id
    );
 
-   console.log(allUsers);
+   useEffect(() => {
+      const getAllRequests = async () => {
+         const requests = await axiosPrivate.get("/request");
+         setAllRequests(requests.data);
+      };
+
+      getAllRequests();
+   }, [axiosPrivate, setAllRequests]);
 
    return (
       <div className="flex min-h-svh">
@@ -22,14 +33,8 @@ const FriendsRequests = () => {
             </h1>
 
             <div className="pb-4 mt-4 max-h-[calc(100svh-100px)] overflow-auto space-y-2 tiny-scrollbar">
-               {/* {allUsers?.map(
-                  (user) =>
-                     currentUser?.requests?.includes(user._id) && (
-                        <UserItem key={user._id} user={user} />
-                     )
-               )} */}
-               {allRequests?.map((user) => (
-                  <UserItem key={user._id} user={user} />
+               {allMyRequests?.map((req) => (
+                  <UserItem key={req._id} user={req.sender} />
                ))}
             </div>
          </div>

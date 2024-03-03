@@ -1,17 +1,19 @@
 import express from "express";
 const router = express.Router();
-import { createRequest, acceptRequest, rejectRequest, cancelRequest } from "../controllers/requestController.js";
+import {
+   getAllRequests,
+   createRequest,
+   acceptRequest,
+   rejectRequest,
+   cancelRequest,
+} from "../controllers/requestController.js";
 
-router.route('/')
-   .post(createRequest)
+router.route("/").post(createRequest).get(getAllRequests);
 
-router.route('/accept')
-   .patch(acceptRequest)
+router.route("/accept").patch(acceptRequest);
 
-router.route('/reject')
-   .patch(rejectRequest)
+router.route("/reject").patch(rejectRequest);
 
-router.route('/cancel')
-   .patch(cancelRequest)
+router.route("/cancel").delete(cancelRequest);
 
 export default router;

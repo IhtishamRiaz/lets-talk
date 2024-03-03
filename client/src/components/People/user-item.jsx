@@ -1,13 +1,12 @@
+import { useEffect, useState } from "react";
 import { BsPersonFillAdd, BsPersonFillX } from "react-icons/bs";
 import { cn } from "../../utils/utils";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useUserStore from "../../store/userStore";
 import useSocketContext from "../../hooks/useSocketContext";
-import { useState } from "react";
 
-const UserItem = ({ user }) => {
+const UserItem = ({ user, allRequests }) => {
    const axiosPrivate = useAxiosPrivate();
-   const currentUser = useUserStore((state) => state.currentUser);
    const onlineUsers = useUserStore((state) => state.onlineUsers);
    const { socket } = useSocketContext();
    const isOnline = onlineUsers?.some(
@@ -16,13 +15,19 @@ const UserItem = ({ user }) => {
 
    const [isLoading, setIsLoading] = useState(false);
    const [isRequestSent, setIsRequestSent] = useState(
-      user?.requests?.includes(currentUser?._id)
+      allRequests?.some((request) => request?.receiver._id === user?._id)
    );
+
+   useEffect(() => {
+      setIsRequestSent(
+         allRequests?.some((request) => request?.receiver._id === user?._id)
+      );
+   }, [allRequests, user?._id]);
 
    const handleRequestSend = async () => {
       setIsLoading(true);
       await axiosPrivate
-         .post("/request", { to: user?._id })
+         .post("/request", { receiverId: user?._id })
          .then(() => {
             if (socket) {
                socket.emit("sendRequest");
@@ -40,7 +45,7 @@ const UserItem = ({ user }) => {
    const handleRequestCancel = async () => {
       setIsLoading(true);
       await axiosPrivate
-         .patch("/request/cancel", { otherUserId: user?._id })
+         .delete("/request/cancel", { receiverId: user?._id })
          .then(() => {
             if (socket) {
                socket.emit("sendRequest");
@@ -54,8 +59,6 @@ const UserItem = ({ user }) => {
             setIsLoading(false);
          });
    };
-
-   // const isRequestSent = user?.requests?.includes(currentUser?._id);
 
    return (
       <div className="flex gap-2 p-1 transition-all rounded-md select-none">

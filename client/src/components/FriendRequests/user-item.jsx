@@ -4,12 +4,13 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 const UserItem = ({ user }) => {
    const axiosPrivate = useAxiosPrivate();
 
-   const handleRequestSend = async () => {
+   const handleRequestAccept = async () => {
       const response = await axiosPrivate.patch("/request/accept", {
-         otherUserId: user?._id,
+         senderId: user?._id,
       });
-      console.log("🚀 ~ handleRequestSend ~ response:", response);
+      console.log("🚀 ~ handleRequestAccept ~ response:", response);
    };
+   console.log("🚀 ~ UserItem ~ user:", user?._id);
 
    return (
       <div className="flex gap-2 p-1 transition-all rounded-md cursor-pointer select-none hover:bg-primary-50">
@@ -27,7 +28,7 @@ const UserItem = ({ user }) => {
             <div className="absolute right-0 flex items-center justify-center -translate-y-1/2 top-1/2">
                <button
                   className="p-1 text-2xl text-green-700 transition-all active:scale-90"
-                  onClick={handleRequestSend}
+                  onClick={handleRequestAccept}
                >
                   <BsPersonFillCheck />
                </button>

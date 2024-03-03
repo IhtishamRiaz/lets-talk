@@ -1,6 +1,5 @@
 import "./assets/css/App.css";
 import { Outlet, Route, Routes, useLocation, Navigate } from "react-router-dom";
-// import { io } from "socket.io-client";
 
 // Pages
 import Login from "./pages/Login.jsx";
@@ -20,6 +19,7 @@ import useAxiosPrivate from "./hooks/useAxiosPrivate.js";
 import { useEffect } from "react";
 import useUserStore from "./store/userStore.js";
 import useChatStore from "./store/chatStore.js";
+import useRequestStore from "./store/requestStore.js";
 // import useSocketStore from "./store/socketStore.js";
 
 const PageLayout = () => {
@@ -43,54 +43,20 @@ function App() {
    const axiosPrivate = useAxiosPrivate();
    const setAllUsers = useUserStore((state) => state.setAllUsers);
    const setAllChats = useChatStore((state) => state.setAllChats);
-   // const currentUser = useUserStore((state) => state.currentUser);
-   // const socket = useSocketStore((state) => state.socket);
-   // const setSocket = useSocketStore((state) => state.setSocket);
+   const setAllRequests = useRequestStore((state) => state.setAllRequests);
 
    useEffect(() => {
       const prefetchData = async () => {
          const users = await axiosPrivate.get("/user");
          const chats = await axiosPrivate.get("/chat");
+         const requests = await axiosPrivate.get("/request");
 
          setAllUsers(users.data);
          setAllChats(chats.data);
+         setAllRequests(requests.data);
       };
       prefetchData();
-   }, [axiosPrivate, setAllUsers, setAllChats]);
-
-   // useEffect(() => {
-   //    const newSocket = io("http://localhost:8080");
-
-   //    newSocket.on("connect", () => {
-   //       setSocket(newSocket);
-   //    });
-
-   //    return () => {
-   //       newSocket.disconnect();
-   //    };
-   // }, [setSocket]);
-
-   // useEffect(() => {
-   //    if (!currentUser._id || !socket) return;
-   //    socket.emit("addNewUser", currentUser?._id);
-
-   //    socket.on("getOnlineUsers", (users) => {
-   //       useUserStore.setState({ onlineUsers: users });
-   //    });
-
-   //    return () => {
-   //       socket.off("getOnlineUsers");
-   //    };
-   // }, [currentUser, socket]);
-
-   // useEffect(() => {
-   //    if (!socket) return;
-
-   //    socket.on("updateRequests", async () => {
-   //       const users = await axiosPrivate.get("/user");
-   //       setAllUsers(users.data);
-   //    });
-   // }, [socket, axiosPrivate, setAllUsers]);
+   }, [axiosPrivate, setAllUsers, setAllChats, setAllRequests]);
 
    return (
       <>

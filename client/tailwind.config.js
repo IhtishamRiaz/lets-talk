@@ -9,7 +9,7 @@ export default {
    theme: {
       extend: {
          colors: {
-            primary: colors.purple,
+            primary: colors.indigo,
          },
       },
    },
