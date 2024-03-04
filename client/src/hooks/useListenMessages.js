@@ -9,7 +9,6 @@ const useListenMessages = () => {
    useEffect(() => {
       if (!socket) return;
       socket.on("newMessage", (newMessage) => {
-         console.log("🚀 ~ useListenMessages ~ message:", newMessage);
          addNewMessage(newMessage);
       });
 

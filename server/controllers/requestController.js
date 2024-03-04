@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import Request from "../models/requestModel.js";
+import { getUserSocketId, io } from "../services/sockets.js";
 
 // @desc Get All Requests
 // @route GET /request
@@ -36,18 +37,6 @@ const createRequest = async (req, res) => {
          return res.status(400).json({ message: "Request Already Sent!" });
       }
 
-      // const receiver = await User.findById(receiverId);
-
-      // if (receiver.requests.includes(senderId)) {
-      //    return res.status(400).json({ message: "Request Already Sent!" });
-      // }
-
-      // if (receiver.friends.includes(senderId)) {
-      //    return res.status(400).json({ message: "Already Friends!" });
-      // }
-
-      // receiver.requests.push(senderId);
-      // const newRequest = await receiver.save();
       const newRequest = await Request.create({
          sender: senderId,
          receiver: receiverId,
@@ -55,6 +44,17 @@ const createRequest = async (req, res) => {
 
       if (!newRequest) {
          return res.status(400).json({ message: "Request Failed!" });
+      }
+
+      const populatedRequest = await Request.findById(newRequest._id)
+         .populate("sender", "name" + " username")
+         .populate("receiver", "name" + " username")
+         .exec();
+
+      // Emitting new Request if receiver is online
+      const receiverSocketId = getUserSocketId(receiverId);
+      if (receiverSocketId) {
+         io.to(receiverSocketId).emit("newRequest", populatedRequest);
       }
 
       res.status(201).json({ message: "Request Sent!" });
@@ -109,16 +109,19 @@ const acceptRequest = async (req, res) => {
 // @access Private
 const rejectRequest = async (req, res) => {
    try {
-      const { otherUserId } = req.body;
-      const myUserId = req.userId;
+      const { senderId } = req.body;
+      const receiverId = req.userId;
 
-      const myUser = await User.findById(myUserId);
+      const existingRequest = await Request.findOne({
+         sender: senderId,
+         receiver: receiverId,
+      });
 
-      myUser.requests = myUser.requests.filter(
-         (requestId) => requestId.toString() !== otherUserId.toString()
-      );
+      if (!existingRequest) {
+         return res.status(400).json({ message: "Request Not Found!" });
+      }
 
-      await myUser.save();
+      await Request.findByIdAndDelete(existingRequest._id);
 
       res.status(201).json({ message: "Request Rejected!" });
    } catch (error) {

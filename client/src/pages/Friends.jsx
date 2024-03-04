@@ -1,12 +1,24 @@
 import FriendItem from "../components/Friends/friend-item";
 import useTitle from "../hooks/useTitle";
 import useUserStore from "../store/userStore";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import { useEffect } from "react";
 
 const Friends = () => {
    useTitle("Friends");
 
+   const axiosPrivate = useAxiosPrivate();
    const allUsers = useUserStore((state) => state.allUsers);
+   const setAllUsers = useUserStore((state) => state.setAllUsers);
    const currentUser = useUserStore((state) => state.currentUser);
+
+   useEffect(() => {
+      const getAllUsers = async () => {
+         const users = await axiosPrivate.get("/user");
+         setAllUsers(users.data);
+      };
+      getAllUsers();
+   }, [axiosPrivate, setAllUsers]);
 
    return (
       <div className="flex min-h-svh">

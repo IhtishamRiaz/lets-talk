@@ -4,12 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import Message from "./message";
 import ChatHeader from "./chat-header";
 import useUserStore from "../../store/userStore";
-import useListenMessages from "../../hooks/useListenMessages";
 import useChatStore from "../../store/chatStore";
 
 const ChatArea = ({ chat }) => {
-   useListenMessages();
-
    const currentUser = useUserStore((state) => state.currentUser);
    const newMessages = useChatStore((state) => state.newMessages);
    const setNewMessages = useChatStore((state) => state.setNewMessages);

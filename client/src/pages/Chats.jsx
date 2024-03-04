@@ -6,9 +6,11 @@ import useChatStore from "../store/chatStore";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import ChatArea from "../components/Chats/chat-area";
 import { TiMessages } from "react-icons/ti";
+import useListenMessages from "../hooks/useListenMessages";
 
 const Chats = () => {
    useTitle("Chats");
+   useListenMessages();
 
    const axiosPrivate = useAxiosPrivate();
 

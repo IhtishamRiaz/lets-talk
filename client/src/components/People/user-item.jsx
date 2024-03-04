@@ -10,7 +10,7 @@ const UserItem = ({ user, allRequests }) => {
    const onlineUsers = useUserStore((state) => state.onlineUsers);
    const { socket } = useSocketContext();
    const isOnline = onlineUsers?.some(
-      (onlineUser) => onlineUser?._id === user?._id
+      (onlineUser) => onlineUser.userId === user?._id
    );
 
    const [isLoading, setIsLoading] = useState(false);

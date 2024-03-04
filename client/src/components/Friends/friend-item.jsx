@@ -39,6 +39,13 @@ const FriendItem = ({ user }) => {
          console.log(error);
       }
    };
+   const handleUnfriend = async () => {
+      const res = await axiosPrivate.patch("/user/unfriend", {
+         friendId: user?._id,
+      });
+      console.log(res.data.message);
+   };
+
    return (
       <div
          onClick={handleClick}
@@ -65,8 +72,12 @@ const FriendItem = ({ user }) => {
                      </span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                     <DropdownMenuItem>Chat</DropdownMenuItem>
-                     <DropdownMenuItem>Unfriend</DropdownMenuItem>
+                     <DropdownMenuItem onClick={() => console.log("Clicked")}>
+                        Chat
+                     </DropdownMenuItem>
+                     <DropdownMenuItem onClick={handleUnfriend}>
+                        Unfriend
+                     </DropdownMenuItem>
                   </DropdownMenuContent>
                </DropdownMenu>
             </div>

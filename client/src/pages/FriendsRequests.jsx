@@ -4,9 +4,11 @@ import useRequestStore from "../store/requestStore";
 import useUserStore from "../store/userStore";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import { useEffect } from "react";
+import useListenNewRequest from "../hooks/useListenNewRequests";
 
 const FriendsRequests = () => {
    useTitle("FriendsRequests");
+   useListenNewRequest();
    const axiosPrivate = useAxiosPrivate();
 
    const allRequests = useRequestStore((state) => state.allRequests);
