@@ -57,7 +57,10 @@ const createRequest = async (req, res) => {
          io.to(receiverSocketId).emit("newRequest", populatedRequest);
       }
 
-      res.status(201).json({ message: "Request Sent!" });
+      res.status(201).json({
+         message: "Request Sent!",
+         newRequest: populatedRequest,
+      });
    } catch (error) {
       res.status(500).json({ message: error.message });
    }
@@ -68,13 +71,16 @@ const createRequest = async (req, res) => {
 // @access Private
 const acceptRequest = async (req, res) => {
    try {
-      const { senderId } = req.body;
-      const receiverId = req.userId;
+      const { requestId } = req.body;
 
-      const existingRequest = await Request.findOne({
-         sender: senderId,
-         receiver: receiverId,
-      });
+      if (!requestId) {
+         return res.status(400).json({ message: "Request ID Not Found!" });
+      }
+
+      const existingRequest = await Request.findById(requestId);
+
+      const senderId = existingRequest.sender;
+      const receiverId = existingRequest.receiver;
 
       if (!existingRequest) {
          return res.status(400).json({ message: "Request Not Found!" });
@@ -95,6 +101,19 @@ const acceptRequest = async (req, res) => {
 
       await Request.findByIdAndDelete(existingRequest._id);
 
+      // Emitting Request update signal if receiver is online
+      const receiverSocketId = getUserSocketId(receiverId);
+      if (receiverSocketId) {
+         io.to(receiverSocketId).emit("updateRequests", existingRequest._id);
+         io.to(receiverSocketId).emit("updateCurrentUser");
+         console.log("Signal Sent");
+      }
+      const senderSocketId = getUserSocketId(senderId);
+      if (senderSocketId) {
+         io.to(senderSocketId).emit("updateCurrentUser");
+         console.log("Signal Sent to Sender");
+      }
+
       res.status(201).json({ message: "Request Accepted!" });
    } catch (error) {
       if (error.name === "CastError") {
@@ -109,19 +128,28 @@ const acceptRequest = async (req, res) => {
 // @access Private
 const rejectRequest = async (req, res) => {
    try {
-      const { senderId } = req.body;
-      const receiverId = req.userId;
+      const { requestId } = req.body;
 
-      const existingRequest = await Request.findOne({
-         sender: senderId,
-         receiver: receiverId,
-      });
+      if (!requestId) {
+         return res.status(400).json({ message: "Request ID Not Found!" });
+      }
+
+      const existingRequest = await Request.findById(requestId);
 
       if (!existingRequest) {
          return res.status(400).json({ message: "Request Not Found!" });
       }
 
       await Request.findByIdAndDelete(existingRequest._id);
+
+      // Emitting Request update signal if receiver is online
+      const receiverSocketId = getUserSocketId(
+         existingRequest.receiver.toString()
+      );
+      if (receiverSocketId) {
+         io.to(receiverSocketId).emit("updateRequests", existingRequest._id);
+         console.log("Signal Sent");
+      }
 
       res.status(201).json({ message: "Request Rejected!" });
    } catch (error) {
@@ -145,7 +173,17 @@ const cancelRequest = async (req, res) => {
 
       await Request.findByIdAndDelete(request._id);
 
-      res.status(201).json({ message: "Request Canceled!" });
+      // Emitting Request update signal if receiver is online
+      const receiverSocketId = getUserSocketId(request.receiver.toString());
+      if (receiverSocketId) {
+         io.to(receiverSocketId).emit("updateRequests", request._id);
+         console.log("Signal Sent");
+      }
+
+      res.status(201).json({
+         message: "Request Canceled!",
+         deletedRequestId: request._id,
+      });
    } catch (error) {
       if (error.name === "CastError") {
          return res.status(400).json({ message: "Invalid user ID!" });

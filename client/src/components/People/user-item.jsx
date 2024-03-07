@@ -3,12 +3,17 @@ import { BsPersonFillAdd, BsPersonFillX } from "react-icons/bs";
 import { cn } from "../../utils/utils";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useUserStore from "../../store/userStore";
-import useSocketContext from "../../hooks/useSocketContext";
+import { toast } from "sonner";
+import useRequestStore from "../../store/requestStore";
 
-const UserItem = ({ user, allRequests }) => {
+const UserItem = ({ user }) => {
    const axiosPrivate = useAxiosPrivate();
+
    const onlineUsers = useUserStore((state) => state.onlineUsers);
-   const { socket } = useSocketContext();
+   const allRequests = useRequestStore((state) => state.allRequests);
+   const addNewRequest = useRequestStore((state) => state.addNewRequest);
+   const removeRequest = useRequestStore((state) => state.removeRequest);
+
    const isOnline = onlineUsers?.some(
       (onlineUser) => onlineUser.userId === user?._id
    );
@@ -25,39 +30,33 @@ const UserItem = ({ user, allRequests }) => {
    }, [allRequests, user?._id]);
 
    const handleRequestSend = async () => {
-      setIsLoading(true);
-      await axiosPrivate
-         .post("/request", { receiverId: user?._id })
-         .then(() => {
-            if (socket) {
-               socket.emit("sendRequest");
-            }
-            setIsRequestSent(true);
-         })
-         .catch(() => {
-            setIsRequestSent(false);
-         })
-         .finally(() => {
-            setIsLoading(false);
+      try {
+         setIsLoading(true);
+         const response = await axiosPrivate.post("/request", {
+            receiverId: user?._id,
          });
+         toast.success(response.data.message);
+         addNewRequest(response.data.newRequest);
+      } catch (error) {
+         toast.error(error.response.data.message);
+      } finally {
+         setIsLoading(false);
+      }
    };
 
    const handleRequestCancel = async () => {
-      setIsLoading(true);
-      await axiosPrivate
-         .delete("/request/cancel", { receiverId: user?._id })
-         .then(() => {
-            if (socket) {
-               socket.emit("sendRequest");
-            }
-            setIsRequestSent(false);
-         })
-         .catch(() => {
-            setIsRequestSent(true);
-         })
-         .finally(() => {
-            setIsLoading(false);
+      try {
+         setIsLoading(true);
+         const response = await axiosPrivate.delete("/request/cancel", {
+            receiverId: user?._id,
          });
+         toast.success(response.data.message);
+         removeRequest(response.data.deletedRequestId);
+      } catch (error) {
+         toast.error(error.response.data.message);
+      } finally {
+         setIsLoading(false);
+      }
    };
 
    return (

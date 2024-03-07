@@ -1,22 +1,22 @@
 // import { IoChevronBack } from "react-icons/io5";
 // import { BsThreeDotsVertical } from "react-icons/bs";
 import React from "react";
-import useUserStore from "../../store/userStore";
 import { cn } from "../../utils/utils";
 import { TbTriangleFilled } from "react-icons/tb";
-import { TbChecks } from "react-icons/tb";
+// import { TbChecks } from "react-icons/tb";
 import { TbCheck } from "react-icons/tb";
+import useAuthStore from "../../store/authStore";
 
 const Message = React.forwardRef(({ message, chat }, ref) => {
-   const currentUser = useUserStore((state) => state.currentUser);
+   const currentUserId = useAuthStore((state) => state.userId);
 
-   const sender = chat?.members?.find(
-      (user) => user?._id === message?.senderId
-   );
+   // const sender = chat?.members?.find(
+   //    (user) => user?._id === message?.senderId
+   // );
 
-   const receiver = chat?.members?.find(
-      (user) => user?._id !== message?.senderId
-   );
+   // const receiver = chat?.members?.find(
+   //    (user) => user?._id !== message?.senderId
+   // );
 
    const utcDate = new Date(message.createdAt);
    const options = {
@@ -26,7 +26,7 @@ const Message = React.forwardRef(({ message, chat }, ref) => {
    };
    const localTime = utcDate.toLocaleTimeString("en-US", options);
 
-   const isSender = currentUser?._id === message?.senderId;
+   const isSender = currentUserId === message?.senderId;
 
    return (
       <div

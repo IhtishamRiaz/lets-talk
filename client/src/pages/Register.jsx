@@ -1,40 +1,46 @@
-import { useState } from 'react'
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import Input from '../components/Input';
-import Button from '../components/Button';
-import { Link } from 'react-router-dom';
-import axios from '../api/axios.js';
-import { toast } from 'react-hot-toast';
-import useTitle from '../hooks/useTitle';
+import Input from "../components/Input";
+import Button from "../components/Button";
+import { Link } from "react-router-dom";
+import axios from "../api/axios.js";
+import { toast } from "sonner";
+import useTitle from "../hooks/useTitle";
 
 const Register = () => {
-   useTitle('SignUp');
+   useTitle("SignUp");
    const [isLoading, setIsLoading] = useState(false);
 
    // Yup Validation Schema
    const registerSchema = Yup.object({
-      name: Yup.string().required('Please enter your name'),
-      username: Yup.string().required('Please enter your username'),
-      password: Yup.string().required('Please enter your password').min(8, 'Password must be atleast 8 characters'),
+      name: Yup.string().required("Please enter your name"),
+      username: Yup.string().required("Please enter your username"),
+      password: Yup.string()
+         .required("Please enter your password")
+         .min(8, "Password must be atleast 8 characters"),
    });
 
-   // Formik 
-   const { register, handleSubmit, formState: { errors } } = useForm({
+   // Formik
+   const {
+      register,
+      handleSubmit,
+      formState: { errors },
+   } = useForm({
       resolver: yupResolver(registerSchema),
       defaultValues: {
-         name: '',
-         username: '',
-         password: ''
-      }
+         name: "",
+         username: "",
+         password: "",
+      },
    });
 
    // OnSubmit
    const onSubmit = (data) => {
       setIsLoading(true);
       axios
-         .post('/user', data)
+         .post("/user", data)
          .then((res) => {
             toast.success(res?.data?.message);
          })
@@ -42,7 +48,7 @@ const Register = () => {
             toast.error(error?.response?.data?.message);
          })
          .finally(() => setIsLoading(false));
-   }
+   };
 
    return (
       <div className="flex flex-col justify-center min-h-screen px-3 py-12 bg-gray-100 sm:px-6 lg:px-8">
@@ -61,10 +67,7 @@ const Register = () => {
 
          <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
             <div className="px-4 py-8 bg-white rounded-lg shadow sm:px-10">
-               <form
-                  className="space-y-7"
-                  onSubmit={handleSubmit(onSubmit)}
-               >
+               <form className="space-y-7" onSubmit={handleSubmit(onSubmit)}>
                   {/* Form Inputs */}
                   <Input
                      id="name"
@@ -95,11 +98,7 @@ const Register = () => {
                   />
 
                   <section>
-                     <Button
-                        type="submit"
-                        fullWidth
-                        isLoading={isLoading}
-                     >
+                     <Button type="submit" fullWidth isLoading={isLoading}>
                         Register
                      </Button>
                   </section>
@@ -108,15 +107,13 @@ const Register = () => {
                <div className="flex justify-center gap-2 px-2 mt-6 text-sm text-gray-500">
                   <div>Already have an account?</div>
                   <div className="underline cursor-pointer">
-                     <Link to={'/login'}>
-                        Login
-                     </Link>
+                     <Link to={"/login"}>Login</Link>
                   </div>
                </div>
             </div>
          </div>
       </div>
-   )
-}
+   );
+};
 
-export default Register
+export default Register;

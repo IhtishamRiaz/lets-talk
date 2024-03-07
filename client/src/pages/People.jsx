@@ -4,15 +4,18 @@ import UserItem from "../components/People/user-item";
 import useUserStore from "../store/userStore";
 import useRequestStore from "../store/requestStore";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import useListenUpdateRequests from "../hooks/useListenUpdateRequests";
+import useAuthStore from "../store/authStore";
 
 const People = () => {
    useTitle("People");
+   useListenUpdateRequests();
 
    const axiosPrivate = useAxiosPrivate();
-   const currentUser = useUserStore((state) => state.currentUser);
+   const currentUserId = useAuthStore((state) => state.userId);
    const allUsers = useUserStore((state) => state.allUsers);
-   const allRequests = useRequestStore((state) => state.allRequests);
    const setAllRequests = useRequestStore((state) => state.setAllRequests);
+   const currentUser = allUsers?.find((user) => user._id === currentUserId);
 
    useEffect(() => {
       const getAllRequests = async () => {
@@ -33,11 +36,7 @@ const People = () => {
                   (user) =>
                      !currentUser?.friends?.includes(user._id) &&
                      currentUser?._id !== user._id && (
-                        <UserItem
-                           key={user._id}
-                           user={user}
-                           allRequests={allRequests}
-                        />
+                        <UserItem key={user._id} user={user} />
                      )
                )}
             </div>

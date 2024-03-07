@@ -3,20 +3,18 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useEffect, useRef, useState } from "react";
 import Message from "./message";
 import ChatHeader from "./chat-header";
-import useUserStore from "../../store/userStore";
 import useChatStore from "../../store/chatStore";
+import useAuthStore from "../../store/authStore";
 
 const ChatArea = ({ chat }) => {
-   const currentUser = useUserStore((state) => state.currentUser);
+   const currentUserId = useAuthStore((state) => state.userId);
    const newMessages = useChatStore((state) => state.newMessages);
    const setNewMessages = useChatStore((state) => state.setNewMessages);
    const addNewMessage = useChatStore((state) => state.addNewMessage);
 
    const axiosPrivate = useAxiosPrivate();
    const [initialMessages, setInitialMessages] = useState([]);
-   const receiver = chat?.members?.find(
-      (user) => user?._id !== currentUser?._id
-   );
+   const receiver = chat?.members?.find((user) => user?._id !== currentUserId);
 
    const inputRef = useRef();
    const scrollRef = useRef();

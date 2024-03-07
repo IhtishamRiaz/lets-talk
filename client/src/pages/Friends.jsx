@@ -3,6 +3,7 @@ import useTitle from "../hooks/useTitle";
 import useUserStore from "../store/userStore";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import { useEffect } from "react";
+import useAuthStore from "../store/authStore";
 
 const Friends = () => {
    useTitle("Friends");
@@ -10,7 +11,8 @@ const Friends = () => {
    const axiosPrivate = useAxiosPrivate();
    const allUsers = useUserStore((state) => state.allUsers);
    const setAllUsers = useUserStore((state) => state.setAllUsers);
-   const currentUser = useUserStore((state) => state.currentUser);
+   const currentUserId = useAuthStore((state) => state.userId);
+   const currentUser = allUsers?.find((user) => user._id === currentUserId);
 
    useEffect(() => {
       const getAllUsers = async () => {

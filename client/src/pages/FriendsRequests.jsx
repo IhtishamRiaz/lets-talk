@@ -1,21 +1,23 @@
 import UserItem from "../components/FriendRequests/user-item";
 import useTitle from "../hooks/useTitle";
 import useRequestStore from "../store/requestStore";
-import useUserStore from "../store/userStore";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import { useEffect } from "react";
 import useListenNewRequest from "../hooks/useListenNewRequests";
+import useListenUpdateRequests from "../hooks/useListenUpdateRequests";
+import useAuthStore from "../store/authStore";
 
 const FriendsRequests = () => {
    useTitle("FriendsRequests");
    useListenNewRequest();
+   useListenUpdateRequests();
    const axiosPrivate = useAxiosPrivate();
 
    const allRequests = useRequestStore((state) => state.allRequests);
    const setAllRequests = useRequestStore((state) => state.setAllRequests);
-   const currentUser = useUserStore((state) => state.currentUser);
+   const currentUserId = useAuthStore((state) => state.userId);
    const allMyRequests = allRequests?.filter(
-      (req) => req.receiver._id === currentUser._id
+      (req) => req.receiver._id === currentUserId
    );
 
    useEffect(() => {
@@ -36,7 +38,7 @@ const FriendsRequests = () => {
 
             <div className="pb-4 mt-4 max-h-[calc(100svh-100px)] overflow-auto space-y-2 tiny-scrollbar">
                {allMyRequests?.map((req) => (
-                  <UserItem key={req._id} user={req.sender} />
+                  <UserItem key={req._id} req={req} />
                ))}
             </div>
          </div>

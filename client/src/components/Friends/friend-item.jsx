@@ -9,11 +9,12 @@ import { useNavigate } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useUserStore from "../../store/userStore";
 import useChatStore from "../../store/chatStore";
+import useAuthStore from "../../store/authStore";
 
 const FriendItem = ({ user }) => {
    const navigate = useNavigate();
    const axiosPrivate = useAxiosPrivate();
-   const currentUser = useUserStore((state) => state.currentUser);
+   const currentUserId = useAuthStore((state) => state.userId);
    const allChats = useChatStore((state) => state.allChats);
    const onlineUsers = useUserStore((state) => state.onlineUsers);
    const isOnline = onlineUsers?.some(
@@ -31,7 +32,7 @@ const FriendItem = ({ user }) => {
             return;
          } else {
             const res = await axiosPrivate.post("/chat", {
-               members: [user?._id, currentUser._id],
+               members: [user?._id, currentUserId],
             });
             navigate(`/chats?id=${res.data.newChat._id}`);
          }

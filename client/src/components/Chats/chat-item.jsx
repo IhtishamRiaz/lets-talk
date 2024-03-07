@@ -1,6 +1,7 @@
 import { cn } from "../../utils/utils";
 import useUserStore from "../../store/userStore";
 import { useSearchParams } from "react-router-dom";
+import useAuthStore from "../../store/authStore";
 
 const ChatItem = ({ chat }) => {
    const [searchParams, setSearchParams] = useSearchParams();
@@ -8,8 +9,8 @@ const ChatItem = ({ chat }) => {
    const selected = currentChatId === chat?._id;
    const onlineUsers = useUserStore((state) => state.onlineUsers);
 
-   const currentUser = useUserStore((state) => state.currentUser);
-   const otherUser = chat?.members?.find((mem) => mem._id !== currentUser?._id);
+   const currentUserId = useAuthStore((state) => state.userId);
+   const otherUser = chat?.members?.find((mem) => mem._id !== currentUserId);
 
    const isOnline = onlineUsers?.some(
       (onlineUser) => onlineUser?.userId === otherUser?._id

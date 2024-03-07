@@ -1,9 +1,9 @@
-import useUserStore from "../../store/userStore";
+import useAuthStore from "../../store/authStore";
 
 const ChatHeader = ({ chat }) => {
-   const currentUser = useUserStore((state) => state.currentUser);
+   const currentUserId = useAuthStore((state) => state.userId);
 
-   const sender = chat?.members?.find((user) => user?._id !== currentUser?._id);
+   const sender = chat?.members?.find((user) => user?._id !== currentUserId);
    return (
       <div className="px-5 py-2 bg-white border-b">
          <div className="flex items-center gap-2">

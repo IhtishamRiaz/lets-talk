@@ -6,22 +6,39 @@ import {
    DropdownMenuItem,
    DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import useRequestStore from "../../store/requestStore";
+import { toast } from "sonner";
 
-const UserItem = ({ user }) => {
+const UserItem = ({ req }) => {
    const axiosPrivate = useAxiosPrivate();
 
+   const user = req.sender;
+
+   const removeRequest = useRequestStore((state) => state.removeRequest);
+
    const handleRequestAccept = async () => {
-      const response = await axiosPrivate.patch("/request/accept", {
-         senderId: user?._id,
-      });
-      console.log("🚀 ~ handleRequestAccept ~ response:", response);
+      try {
+         const response = await axiosPrivate.patch("/request/accept", {
+            requestId: req._id,
+         });
+         toast.success(response.data.message);
+         removeRequest(req._id);
+      } catch (error) {
+         toast.error(error.response.data.message);
+      }
    };
 
    const handleRequestReject = async () => {
-      const response = await axiosPrivate.patch("/request/reject", {
-         senderId: user?._id,
-      });
-      console.log("🚀 ~ handleRequestAccept ~ response:", response);
+      try {
+         const response = await axiosPrivate.patch("/request/reject", {
+            requestId: req._id,
+         });
+
+         toast.success(response.data.message);
+         removeRequest(req._id);
+      } catch (error) {
+         toast.error(error.response.data.message);
+      }
    };
 
    return (
