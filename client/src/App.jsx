@@ -15,12 +15,9 @@ import Settings from "./pages/Settings.jsx";
 import SideNav from "./components/SideNav.jsx";
 import PersistLogin from "./components/PersistLogin.jsx";
 import useAuthStore from "./store/authStore.js";
-import useAxiosPrivate from "./hooks/useAxiosPrivate.js";
-import { useEffect } from "react";
-import useUserStore from "./store/userStore.js";
-import useChatStore from "./store/chatStore.js";
-import useRequestStore from "./store/requestStore.js";
-// import useSocketStore from "./store/socketStore.js";
+import useFetchUsers from "./hooks/useFetchUsers";
+import useFetchChats from "./hooks/useFetchChats";
+import useFetchRequests from "./hooks/useFetchRequests";
 
 const PageLayout = () => {
    const userId = useAuthStore((state) => state.userId);
@@ -40,23 +37,9 @@ const PageLayout = () => {
 };
 
 function App() {
-   const axiosPrivate = useAxiosPrivate();
-   const setAllUsers = useUserStore((state) => state.setAllUsers);
-   const setAllChats = useChatStore((state) => state.setAllChats);
-   const setAllRequests = useRequestStore((state) => state.setAllRequests);
-
-   useEffect(() => {
-      const prefetchData = async () => {
-         const users = await axiosPrivate.get("/user");
-         const chats = await axiosPrivate.get("/chat");
-         const requests = await axiosPrivate.get("/request");
-
-         setAllUsers(users.data);
-         setAllChats(chats.data);
-         setAllRequests(requests.data);
-      };
-      prefetchData();
-   }, [axiosPrivate, setAllUsers, setAllChats, setAllRequests]);
+   useFetchUsers();
+   useFetchChats();
+   useFetchRequests();
 
    return (
       <>

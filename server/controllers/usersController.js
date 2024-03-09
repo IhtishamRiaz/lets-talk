@@ -6,6 +6,7 @@ import {
    validateRegister,
    validateUserUpdate,
 } from "../validations/userValidator.js";
+import { getUserSocketId, io } from "../services/sockets.js";
 
 // @desc Get All Users
 // @route GET /user
@@ -124,7 +125,7 @@ const unfriendUser = async (req, res) => {
       const userId = req.userId;
       const { friendId } = req.body;
 
-      const user = await User.findById(userId);
+      const user = await User.findById(userId).select("-password");
       const friend = await User.findById(friendId);
 
       if (!user || !friend) {
@@ -146,6 +147,13 @@ const unfriendUser = async (req, res) => {
 
       await user.save();
       await friend.save();
+
+      // Emitting Signal
+      const receiverSocketId = getUserSocketId(friendId);
+      if (receiverSocketId) {
+         io.to(receiverSocketId).emit("updateUsers");
+         console.log("User Update Signal Sent");
+      }
 
       res.status(200).json({ message: "User Unfriended Successful!" });
    } catch (error) {

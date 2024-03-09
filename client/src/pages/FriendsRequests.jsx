@@ -1,8 +1,6 @@
 import UserItem from "../components/FriendRequests/user-item";
 import useTitle from "../hooks/useTitle";
 import useRequestStore from "../store/requestStore";
-import useAxiosPrivate from "../hooks/useAxiosPrivate";
-import { useEffect } from "react";
 import useListenNewRequest from "../hooks/useListenNewRequests";
 import useListenUpdateRequests from "../hooks/useListenUpdateRequests";
 import useAuthStore from "../store/authStore";
@@ -11,23 +9,12 @@ const FriendsRequests = () => {
    useTitle("FriendsRequests");
    useListenNewRequest();
    useListenUpdateRequests();
-   const axiosPrivate = useAxiosPrivate();
 
    const allRequests = useRequestStore((state) => state.allRequests);
-   const setAllRequests = useRequestStore((state) => state.setAllRequests);
    const currentUserId = useAuthStore((state) => state.userId);
    const allMyRequests = allRequests?.filter(
       (req) => req.receiver._id === currentUserId
    );
-
-   useEffect(() => {
-      const getAllRequests = async () => {
-         const requests = await axiosPrivate.get("/request");
-         setAllRequests(requests.data);
-      };
-
-      getAllRequests();
-   }, [axiosPrivate, setAllRequests]);
 
    return (
       <div className="flex min-h-svh">

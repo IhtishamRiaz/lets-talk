@@ -1,9 +1,6 @@
-import { useEffect } from "react";
 import useTitle from "../hooks/useTitle";
 import UserItem from "../components/People/user-item";
 import useUserStore from "../store/userStore";
-import useRequestStore from "../store/requestStore";
-import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import useListenUpdateRequests from "../hooks/useListenUpdateRequests";
 import useAuthStore from "../store/authStore";
 
@@ -11,20 +8,9 @@ const People = () => {
    useTitle("People");
    useListenUpdateRequests();
 
-   const axiosPrivate = useAxiosPrivate();
    const currentUserId = useAuthStore((state) => state.userId);
    const allUsers = useUserStore((state) => state.allUsers);
-   const setAllRequests = useRequestStore((state) => state.setAllRequests);
    const currentUser = allUsers?.find((user) => user._id === currentUserId);
-
-   useEffect(() => {
-      const getAllRequests = async () => {
-         const requests = await axiosPrivate.get("/request");
-         setAllRequests(requests.data);
-      };
-
-      getAllRequests();
-   }, [axiosPrivate, setAllRequests]);
 
    return (
       <div className="flex min-h-svh">

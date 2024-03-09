@@ -102,17 +102,18 @@ const acceptRequest = async (req, res) => {
       await Request.findByIdAndDelete(existingRequest._id);
 
       // Emitting Request update signal if receiver is online
-      const receiverSocketId = getUserSocketId(receiverId);
+      const receiverSocketId = getUserSocketId(receiverId.toString());
+      console.log(receiverSocketId);
       if (receiverSocketId) {
          io.to(receiverSocketId).emit("updateRequests", existingRequest._id);
-         io.to(receiverSocketId).emit("updateCurrentUser");
+         io.to(receiverSocketId).emit("updateUsers");
          console.log("Signal Sent");
       }
-      const senderSocketId = getUserSocketId(senderId);
-      if (senderSocketId) {
-         io.to(senderSocketId).emit("updateCurrentUser");
-         console.log("Signal Sent to Sender");
-      }
+      // const senderSocketId = getUserSocketId(senderId);
+      // if (senderSocketId) {
+      //    io.to(senderSocketId).emit("updateCurrentUser");
+      //    console.log("Signal Sent to Sender");
+      // }
 
       res.status(201).json({ message: "Request Accepted!" });
    } catch (error) {
