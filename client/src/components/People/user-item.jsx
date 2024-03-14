@@ -5,9 +5,11 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useUserStore from "../../store/userStore";
 import { toast } from "sonner";
 import useRequestStore from "../../store/requestStore";
+import { useQueryClient } from "@tanstack/react-query";
 
 const UserItem = ({ user }) => {
    const axiosPrivate = useAxiosPrivate();
+   const queryClient = useQueryClient();
 
    const onlineUsers = useUserStore((state) => state.onlineUsers);
    const allRequests = useRequestStore((state) => state.allRequests);
@@ -35,8 +37,9 @@ const UserItem = ({ user }) => {
          const response = await axiosPrivate.post("/request", {
             receiverId: user?._id,
          });
-         toast.success(response.data.message);
          addNewRequest(response.data.newRequest);
+         queryClient.invalidateQueries({ queryKey: ["Requests"] });
+         toast.success(response.data.message);
       } catch (error) {
          toast.error(error.response.data.message);
       } finally {
@@ -50,8 +53,9 @@ const UserItem = ({ user }) => {
          const response = await axiosPrivate.delete("/request/cancel", {
             receiverId: user?._id,
          });
-         toast.success(response.data.message);
          removeRequest(response.data.deletedRequestId);
+         queryClient.invalidateQueries({ queryKey: ["Requests"] });
+         toast.success(response.data.message);
       } catch (error) {
          toast.error(error.response.data.message);
       } finally {

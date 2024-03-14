@@ -6,15 +6,13 @@ import {
    DropdownMenuItem,
    DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import useRequestStore from "../../store/requestStore";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
-const UserItem = ({ req }) => {
+const RequestItem = ({ req }) => {
    const axiosPrivate = useAxiosPrivate();
-
+   const queryClient = useQueryClient();
    const user = req.sender;
-
-   const removeRequest = useRequestStore((state) => state.removeRequest);
 
    const handleRequestAccept = async () => {
       try {
@@ -22,7 +20,7 @@ const UserItem = ({ req }) => {
             requestId: req._id,
          });
          toast.success(response.data.message);
-         removeRequest(req._id);
+         queryClient.invalidateQueries({ queryKey: ["Requests"] });
       } catch (error) {
          toast.error(error.response.data.message);
       }
@@ -35,7 +33,7 @@ const UserItem = ({ req }) => {
          });
 
          toast.success(response.data.message);
-         removeRequest(req._id);
+         queryClient.invalidateQueries({ queryKey: ["Requests"] });
       } catch (error) {
          toast.error(error.response.data.message);
       }
@@ -76,4 +74,4 @@ const UserItem = ({ req }) => {
    );
 };
 
-export default UserItem;
+export default RequestItem;

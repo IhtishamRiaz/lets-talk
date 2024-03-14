@@ -1,23 +1,23 @@
 import { useEffect } from "react";
-import useRequestStore from "../store/requestStore";
 import useSocketContext from "./useSocketContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 const useListenUpdateRequests = () => {
    const { socket } = useSocketContext();
-   const removeRequest = useRequestStore((state) => state.removeRequest);
+   const queryClient = useQueryClient();
 
    useEffect(() => {
       if (!socket) return;
 
-      socket.on("updateRequests", (requestId) => {
-         removeRequest(requestId);
+      socket.on("updateRequests", () => {
+         queryClient.invalidateQueries({ queryKey: ["Requests"] });
          console.log("Updating Requests");
       });
 
       return () => {
          socket.off("updateRequests");
       };
-   }, [socket, removeRequest]);
+   }, [socket, queryClient]);
 };
 
 export default useListenUpdateRequests;

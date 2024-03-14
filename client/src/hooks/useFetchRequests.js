@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import useRequestStore from "../store/requestStore.js";
 import useAxiosPrivate from "./useAxiosPrivate.js";
+import { useEffect } from "react";
 
 export default function useFetchRequests() {
    const axiosPrivate = useAxiosPrivate();
@@ -16,5 +17,7 @@ export default function useFetchRequests() {
       queryFn: fetchRequests,
    });
 
-   setAllRequests(allRequests);
+   useEffect(() => {
+      setAllRequests(allRequests);
+   }, [setAllRequests, allRequests]);
 }

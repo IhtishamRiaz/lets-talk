@@ -3,14 +3,18 @@ import useTitle from "../hooks/useTitle";
 import useUserStore from "../store/userStore";
 import useAuthStore from "../store/authStore";
 import useListenUpdateUsers from "../hooks/useListenUpdateUsers";
+import useFetchUsers from "../hooks/useFetchUsers";
 
 const Friends = () => {
    useTitle("Friends");
    useListenUpdateUsers();
+   useFetchUsers();
 
    const allUsers = useUserStore((state) => state.allUsers);
    const currentUserId = useAuthStore((state) => state.userId);
    const currentUser = allUsers?.find((user) => user._id === currentUserId);
+
+   console.log(allUsers);
 
    return (
       <div className="flex min-h-svh">

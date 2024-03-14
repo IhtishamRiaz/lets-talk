@@ -3,10 +3,12 @@ import UserItem from "../components/People/user-item";
 import useUserStore from "../store/userStore";
 import useListenUpdateRequests from "../hooks/useListenUpdateRequests";
 import useAuthStore from "../store/authStore";
+import useFetchUsers from "../hooks/useFetchUsers";
 
 const People = () => {
    useTitle("People");
    useListenUpdateRequests();
+   useFetchUsers();
 
    const currentUserId = useAuthStore((state) => state.userId);
    const allUsers = useUserStore((state) => state.allUsers);

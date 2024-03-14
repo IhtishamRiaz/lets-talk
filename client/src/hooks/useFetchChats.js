@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import useChatStore from "../store/chatStore.js";
 import useAxiosPrivate from "./useAxiosPrivate.js";
+import { useEffect } from "react";
 
 export default function useFetchChats() {
    const axiosPrivate = useAxiosPrivate();
@@ -16,5 +17,7 @@ export default function useFetchChats() {
       queryFn: fetchChats,
    });
 
-   setAllChats(allChats);
+   useEffect(() => {
+      setAllChats(allChats);
+   }, [setAllChats, allChats]);
 }

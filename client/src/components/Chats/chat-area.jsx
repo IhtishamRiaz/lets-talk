@@ -1,23 +1,32 @@
 import { BiSolidSend } from "react-icons/bi";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Message from "./message";
 import ChatHeader from "./chat-header";
-import useChatStore from "../../store/chatStore";
 import useAuthStore from "../../store/authStore";
+import { useQuery } from "@tanstack/react-query";
+import useChatStore from "../../store/chatStore";
 
 const ChatArea = ({ chat }) => {
+   const axiosPrivate = useAxiosPrivate();
    const currentUserId = useAuthStore((state) => state.userId);
    const newMessages = useChatStore((state) => state.newMessages);
    const setNewMessages = useChatStore((state) => state.setNewMessages);
    const addNewMessage = useChatStore((state) => state.addNewMessage);
-
-   const axiosPrivate = useAxiosPrivate();
-   const [initialMessages, setInitialMessages] = useState([]);
-   const receiver = chat?.members?.find((user) => user?._id !== currentUserId);
-
    const inputRef = useRef();
    const scrollRef = useRef();
+   const receiver = chat?.members?.find((user) => user?._id !== currentUserId);
+
+   const fetchAllMessages = async () => {
+      if (!chat?._id) return;
+      const res = await axiosPrivate.get(`/message/${chat?._id}`);
+      return res.data;
+   };
+
+   const { data: initialMessages } = useQuery({
+      queryKey: ["Messages", chat?._id],
+      queryFn: fetchAllMessages,
+   });
 
    // Send New Message
    const sendMessage = async (e) => {
@@ -32,41 +41,28 @@ const ChatArea = ({ chat }) => {
             receiverId: receiver?._id,
          });
          addNewMessage(res.data);
-
          inputRef.current.value = "";
       } catch (error) {
          console.log(error);
       }
    };
 
-   // Fetch All Messages on initial load
-   useEffect(() => {
-      const fetchAllMessages = async () => {
-         try {
-            if (!chat?._id) return;
-            const res = await axiosPrivate.get(`/message/${chat?._id}`);
-            setInitialMessages(res.data);
-         } catch (error) {
-            console.log(error);
-         }
-      };
-      fetchAllMessages();
-      setNewMessages([]);
-   }, [chat?._id, axiosPrivate, setNewMessages]);
-
    // Scroll into view
    useEffect(() => {
       if (scrollRef.current) {
          scrollRef.current?.scrollIntoView({ behavior: "smooth" });
       }
-   }, [newMessages]);
+   }, [newMessages, initialMessages]);
+   useEffect(() => {
+      setNewMessages([]);
+   }, [chat?._id, setNewMessages]);
 
    return (
       <div className="relative min-h-svh">
          <ChatHeader chat={chat} />
          <section
             ref={scrollRef}
-            className="flex flex-col items-start gap-4 px-6 py-4 max-h-[calc(100svh-140px)] border border-red-500 overflow-auto"
+            className="flex flex-col items-start gap-4 px-6 py-4 max-h-[calc(100svh-140px)] overflow-auto"
          >
             {initialMessages?.map((message) => (
                <>

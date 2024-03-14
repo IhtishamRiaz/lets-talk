@@ -1,32 +1,23 @@
 import { useEffect } from "react";
-import useRequestStore from "../store/requestStore";
 import useSocketContext from "./useSocketContext";
-import useAxiosPrivate from "./useAxiosPrivate";
-import useUserStore from "../store/userStore";
+import { useQueryClient } from "@tanstack/react-query";
 
 const useListenUpdateRequests = () => {
    const { socket } = useSocketContext();
-   const removeRequest = useRequestStore((state) => state.removeRequest);
-   const axiosPrivate = useAxiosPrivate();
-   const setAllUsers = useUserStore((state) => state.setAllUsers);
+   const queryClient = useQueryClient();
 
    useEffect(() => {
       if (!socket) return;
 
-      const updateUsers = async () => {
-         const res = await axiosPrivate.get("/user");
-         setAllUsers(res.data);
-      };
-
       socket.on("updateUsers", () => {
-         updateUsers();
+         queryClient.invalidateQueries({ queryKey: ["Users"] });
          console.log("Updating Users");
       });
 
       return () => {
          socket.off("updateUsers");
       };
-   }, [socket, removeRequest, axiosPrivate, setAllUsers]);
+   }, [socket, queryClient]);
 };
 
 export default useListenUpdateRequests;

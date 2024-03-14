@@ -6,10 +6,12 @@ import useChatStore from "../store/chatStore";
 import ChatArea from "../components/Chats/chat-area";
 import { TiMessages } from "react-icons/ti";
 import useListenMessages from "../hooks/useListenMessages";
+import useFetchChats from "../hooks/useFetchChats";
 
 const Chats = () => {
    useTitle("Chats");
    useListenMessages();
+   useFetchChats();
 
    const [searchParams] = useSearchParams();
    const currentChatId = searchParams.get("id");

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import useUserStore from "../store/userStore.js";
 import useAxiosPrivate from "./useAxiosPrivate.js";
+import { useEffect } from "react";
 
 export default function useFetchUsers() {
    const axiosPrivate = useAxiosPrivate();
@@ -16,5 +17,7 @@ export default function useFetchUsers() {
       queryFn: fetchUsers,
    });
 
-   setAllUsers(allUsers);
+   useEffect(() => {
+      setAllUsers(allUsers);
+   }, [allUsers, setAllUsers]);
 }

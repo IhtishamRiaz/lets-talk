@@ -54,7 +54,7 @@ const createRequest = async (req, res) => {
       // Emitting new Request if receiver is online
       const receiverSocketId = getUserSocketId(receiverId);
       if (receiverSocketId) {
-         io.to(receiverSocketId).emit("newRequest", populatedRequest);
+         io.to(receiverSocketId).emit("updateRequests", populatedRequest);
       }
 
       res.status(201).json({

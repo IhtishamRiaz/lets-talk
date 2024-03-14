@@ -1,20 +1,21 @@
-import UserItem from "../components/FriendRequests/user-item";
+import RequestItem from "../components/FriendRequests/request-item";
 import useTitle from "../hooks/useTitle";
 import useRequestStore from "../store/requestStore";
-import useListenNewRequest from "../hooks/useListenNewRequests";
 import useListenUpdateRequests from "../hooks/useListenUpdateRequests";
 import useAuthStore from "../store/authStore";
+import useFetchRequests from "../hooks/useFetchRequests";
 
 const FriendsRequests = () => {
    useTitle("FriendsRequests");
-   useListenNewRequest();
    useListenUpdateRequests();
+   useFetchRequests();
 
    const allRequests = useRequestStore((state) => state.allRequests);
    const currentUserId = useAuthStore((state) => state.userId);
    const allMyRequests = allRequests?.filter(
       (req) => req.receiver._id === currentUserId
    );
+   console.log(allMyRequests);
 
    return (
       <div className="flex min-h-svh">
@@ -25,7 +26,7 @@ const FriendsRequests = () => {
 
             <div className="pb-4 mt-4 max-h-[calc(100svh-100px)] overflow-auto space-y-2 tiny-scrollbar">
                {allMyRequests?.map((req) => (
-                  <UserItem key={req._id} req={req} />
+                  <RequestItem key={req._id} req={req} />
                ))}
             </div>
          </div>
