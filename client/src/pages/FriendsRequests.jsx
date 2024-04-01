@@ -15,7 +15,6 @@ const FriendsRequests = () => {
    const allMyRequests = allRequests?.filter(
       (req) => req.receiver._id === currentUserId
    );
-   console.log(allMyRequests);
 
    return (
       <div className="flex min-h-svh">

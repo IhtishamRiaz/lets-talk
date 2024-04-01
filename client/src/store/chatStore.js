@@ -8,6 +8,9 @@ const useChatStore = create((set) => ({
    setNewMessages: (newMessages) => set({ newMessages }),
    addNewMessage: (newMessage) =>
       set((state) => ({ newMessages: [...state.newMessages, newMessage] })),
+
+   allUnseenMessages: [],
+   setAllUnseenMessages: (allUnseenMessages) => set({ allUnseenMessages }),
 }));
 
 export default useChatStore;

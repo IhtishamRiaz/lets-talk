@@ -2,13 +2,30 @@ import Message from "../models/messageModal.js";
 import { getUserSocketId, io } from "../services/sockets.js";
 
 // @desc Get All Messages
-// @route GET /message
+// @route GET /message/:chatId
 // @access Private
 const getAllMessages = async (req, res) => {
    try {
       const { chatId } = req.params;
 
       const messages = await Message.find({ chatId }).exec();
+      res.json(messages);
+   } catch (error) {
+      res.status(500).json({ message: error.message });
+   }
+};
+
+// @desc Get All Non Seen Messages
+// @route GET /message/non-seen
+// @access Private
+const getAllNonSeenMessages = async (req, res) => {
+   try {
+      const userId = req.userId;
+      const messages = await Message.find({
+         senderId: { $ne: userId },
+         $and: [{ seen: false }],
+      }).exec();
+
       res.json(messages);
    } catch (error) {
       res.status(500).json({ message: error.message });
@@ -44,4 +61,4 @@ const createNewMessage = async (req, res) => {
    }
 };
 
-export { getAllMessages, createNewMessage };
+export { getAllMessages, createNewMessage, getAllNonSeenMessages };

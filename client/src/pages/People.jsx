@@ -4,11 +4,13 @@ import useUserStore from "../store/userStore";
 import useListenUpdateRequests from "../hooks/useListenUpdateRequests";
 import useAuthStore from "../store/authStore";
 import useFetchUsers from "../hooks/useFetchUsers";
+import useFetchRequests from "../hooks/useFetchRequests";
 
 const People = () => {
    useTitle("People");
    useListenUpdateRequests();
    useFetchUsers();
+   useFetchRequests();
 
    const currentUserId = useAuthStore((state) => state.userId);
    const allUsers = useUserStore((state) => state.allUsers);

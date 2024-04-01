@@ -15,6 +15,8 @@ import requestRoutes from "./routes/requestRoute.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 
+import Message from "./models/messageModal.js";
+
 dotenv.config();
 const PORT = process.env.PORT || 8080;
 
@@ -35,8 +37,18 @@ app.use("/message", verifyJWT, messageRoutes);
 
 app.use(errorHandler);
 
+const updateAllMessages = async () => {
+   try {
+      await Message.updateMany({}, { $set: { seen: true } });
+      console.log("Messages Updated");
+   } catch (error) {
+      console.log(error);
+   }
+};
+
 mongoose.connection.once("open", () => {
    console.log("Connected to MongoDB");
+   // updateAllMessages();
    server.listen(PORT, () => {
       console.log(`Server Running on port ${process.env.PORT}`);
    });

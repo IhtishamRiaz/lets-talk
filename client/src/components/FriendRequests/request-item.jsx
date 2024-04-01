@@ -31,7 +31,6 @@ const RequestItem = ({ req }) => {
          const response = await axiosPrivate.patch("/request/reject", {
             requestId: req._id,
          });
-
          toast.success(response.data.message);
          queryClient.invalidateQueries({ queryKey: ["Requests"] });
       } catch (error) {

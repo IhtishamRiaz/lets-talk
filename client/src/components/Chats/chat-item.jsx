@@ -2,12 +2,19 @@ import { cn } from "../../utils/utils";
 import useUserStore from "../../store/userStore";
 import { useSearchParams } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
+import useChatStore from "../../store/chatStore";
 
 const ChatItem = ({ chat }) => {
    const [searchParams, setSearchParams] = useSearchParams();
    const currentChatId = searchParams.get("id");
    const selected = currentChatId === chat?._id;
    const onlineUsers = useUserStore((state) => state.onlineUsers);
+   const allUnseenMessages = useChatStore((state) => state.allUnseenMessages);
+
+   const allUnseenMessagesOfThisChat = allUnseenMessages?.filter(
+      (unseen) => unseen.chatId === chat?._id
+   );
+   console.log(allUnseenMessagesOfThisChat);
 
    const currentUserId = useAuthStore((state) => state.userId);
    const otherUser = chat?.members?.find((mem) => mem._id !== currentUserId);
@@ -43,9 +50,11 @@ const ChatItem = ({ chat }) => {
          <div className="relative flex-1">
             <h3 className="font-semibold ">{otherUser?.name}</h3>
             <p className="text-sm ">No, I dont &#183; Oct 12</p>
-            <span className="absolute flex items-center justify-center w-5 h-5 text-xs font-medium text-white -translate-y-1/2 rounded-full right-1 bg-primary-700 top-1/2">
-               2
-            </span>
+            {allUnseenMessagesOfThisChat?.length > 0 && (
+               <span className="absolute flex items-center justify-center w-5 h-5 text-xs font-medium text-white -translate-y-1/2 rounded-full right-1 bg-primary-700 top-1/2">
+                  {allUnseenMessagesOfThisChat?.length}
+               </span>
+            )}
          </div>
       </div>
    );
